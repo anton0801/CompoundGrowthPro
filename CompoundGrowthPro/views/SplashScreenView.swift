@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct SplashScreenView: View {
     @State private var isAnimating = false
@@ -8,82 +9,85 @@ struct SplashScreenView: View {
     @State private var showTitle = false
     @State private var gradientRotation: Double = 0
     
-    var onComplete: () -> Void
-    
     var body: some View {
-        ZStack {
-            // Animated gradient background
-            AngularGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "00B4A5"),
-                    Color(hex: "00897B"),
-                    Color(hex: "FFB300"),
-                    Color(hex: "00B4A5")
-                ]),
-                center: .center,
-                angle: .degrees(gradientRotation)
-            )
-            .ignoresSafeArea()
-            
-            // Floating particles
-            ForEach(0..<20, id: \.self) { index in
-                FloatingParticle(index: index)
-                    .opacity(particlesOpacity)
-            }
-            
-            VStack(spacing: 24) {
-                // Logo with compound growth visual
-                ZStack {
-                    // Background glow
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                gradient: Gradient(colors: [
-                                    Color.white.opacity(0.3),
-                                    Color.clear
-                                ]),
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: 100
-                            )
-                        )
-                        .frame(width: 200, height: 200)
-                        .blur(radius: 20)
-                        .scaleEffect(isAnimating ? 1.2 : 0.8)
-                    
-                    // Logo circle
-                    ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 120, height: 120)
-                        
-                        // Compound interest graph icon
-                        CompoundGraphIcon()
-                            .frame(width: 80, height: 80)
-                            .foregroundColor(Color(hex: "00897B"))
-                    }
-                    .scaleEffect(logoScale)
-                    .rotationEffect(.degrees(logoRotation))
+        GeometryReader {g in
+            ZStack {
+                AngularGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "00B4A5"),
+                        Color(hex: "00897B"),
+                        Color(hex: "FFB300"),
+                        Color(hex: "00B4A5")
+                    ]),
+                    center: .center,
+                    angle: .degrees(gradientRotation)
+                )
+                .ignoresSafeArea()
+                
+                Image("loading_bg")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: g.size.width, height: g.size.height)
+                    .ignoresSafeArea()
+                
+                ForEach(0..<20, id: \.self) { index in
+                    FloatingParticle(index: index)
+                        .opacity(particlesOpacity)
                 }
                 
-                // App title
-                if showTitle {
-                    VStack(spacing: 8) {
-                        Text("CompoundGrowth")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                VStack(spacing: 24) {
+                    // Logo with compound growth visual
+                    ZStack {
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.3),
+                                        Color.clear
+                                    ]),
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 100
+                                )
+                            )
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 20)
+                            .scaleEffect(isAnimating ? 1.2 : 0.8)
                         
-                        Text("Pro")
-                            .font(.system(size: 24, weight: .medium, design: .rounded))
-                            .foregroundColor(Color(hex: "FFB300"))
+                        // Logo circle
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 120, height: 120)
+                            
+                            CompoundGraphIcon()
+                                .frame(width: 80, height: 80)
+                                .foregroundColor(Color(hex: "00897B"))
+                        }
+                        .scaleEffect(logoScale)
+                        .rotationEffect(.degrees(logoRotation))
                     }
-                    .transition(.opacity.combined(with: .scale))
+                    
+                    // App title
+                    if showTitle {
+                        VStack(spacing: 8) {
+                            Text("Growth")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            
+                            Text("Balance")
+                                .font(.system(size: 24, weight: .medium, design: .rounded))
+                                .foregroundColor(Color(hex: "FFB300"))
+                        }
+                        .transition(.opacity.combined(with: .scale))
+                    }
                 }
             }
+            .onAppear {
+                startAnimations()
+            }
         }
-        .onAppear {
-            startAnimations()
-        }
+        .ignoresSafeArea()
     }
     
     private func startAnimations() {
@@ -116,12 +120,6 @@ struct SplashScreenView: View {
             showTitle = true
         }
         
-        // Complete splash screen
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation(.easeOut(duration: 0.5)) {
-                onComplete()
-            }
-        }
     }
 }
 
@@ -202,4 +200,76 @@ struct FloatingParticle: View {
                 }
             }
     }
+}
+
+
+struct GrowthBalanceView: View {
+    @StateObject private var engine = RuntimeEngine()
+    @State private var eventStreams = Set<AnyCancellable>()
+    
+    var body: some View {
+        ZStack {
+            renderPhase()
+            
+            if engine.presentAlertPrompt {
+                AlertPromptView(engine: engine)
+                    .transition(.opacity.combined(with: .scale))
+            }
+            
+            if engine.phase == .unavailable {
+                UnavailableView()
+            }
+        }
+        .onAppear { attachEventStreams() }
+    }
+    
+    @ViewBuilder
+    private func renderPhase() -> some View {
+        switch engine.phase {
+        case .dormant, .awakening, .checking, .authorized:
+            SplashScreenView()
+        case .operational:
+            if engine.activeResource != nil {
+                BalanceContentView()
+            } else {
+                ContentView()
+            }
+        case .paused:
+            ContentView()
+        case .unavailable:
+            EmptyView()
+        }
+    }
+    
+    private func attachEventStreams() {
+        NotificationCenter.default.publisher(for: Notification.Name("ConversionDataReceived"))
+            .compactMap { $0.userInfo?["conversionData"] as? [String: Any] }
+            .sink { engine.ingest(marketing: $0) }
+            .store(in: &eventStreams)
+        
+        NotificationCenter.default.publisher(for: Notification.Name("deeplink_values"))
+            .compactMap { $0.userInfo?["deeplinksData"] as? [String: Any] }
+            .sink { engine.ingest(navigation: $0) }
+            .store(in: &eventStreams)
+    }
+}
+
+struct UnavailableView: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.black.opacity(0.5))
+                .blur(radius: 5)
+            
+            VStack {
+                Spacer().frame(height: 200)
+                Image("error_alert")
+                Spacer()
+            }
+        }
+    }
+}
+
+#Preview {
+    SplashScreenView()
 }

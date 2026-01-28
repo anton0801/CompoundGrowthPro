@@ -1,0 +1,291 @@
+"app_name" = "Growth Balance";
+"cancel" = "Cancel";
+"save" = "Save";
+"delete" = "Delete";
+"edit" = "Edit";
+"done" = "Done";
+"close" = "Close";
+"next" = "Next";
+"back" = "Back";
+"start" = "Start";
+"skip" = "Skip";
+"continue" = "Continue";
+"ok" = "OK";
+"yes" = "Yes";
+"no" = "No";
+"search" = "Search";
+"filter" = "Filter";
+"sort" = "Sort";
+"loading" = "Loading...";
+"error" = "Error";
+"success" = "Success";
+
+// MARK: - Onboarding
+"onboarding_title_1" = "The Power of Compound Interest";
+"onboarding_desc_1" = "Unlock the potential of exponential growth for your investments with precise calculations";
+"onboarding_title_2" = "Visualize Your Future";
+"onboarding_desc_2" = "Interactive charts and scenario comparisons help you make the right decision";
+"onboarding_title_3" = "Manage Scenarios";
+"onboarding_desc_3" = "Save calculations, create profiles, and track the history of your financial plans";
+"onboarding_title_4" = "Start Growing Today";
+"onboarding_desc_4" = "All data is stored locally, ensuring complete privacy of your finances";
+
+// MARK: - Dashboard
+"dashboard_welcome" = "Welcome";
+"dashboard_new_calculation" = "New Calculation";
+"dashboard_history" = "History";
+"dashboard_profiles" = "Profiles";
+"dashboard_charts" = "Charts";
+"dashboard_recent" = "Recent Calculations";
+"dashboard_tip_title" = "Tip of the Day";
+
+// MARK: - Calculator
+"calc_title" = "Calculator";
+"calc_type" = "Calculation Type";
+"calc_principal" = "Principal Amount";
+"calc_rate" = "Annual Rate";
+"calc_time" = "Period (years)";
+"calc_frequency" = "Compounding Frequency";
+"calc_contributions" = "Regular Contributions";
+"calc_contribution_freq" = "Contribution Frequency";
+"calc_inflation" = "Inflation";
+"calc_tax_rate" = "Tax Rate";
+"calc_currency" = "Currency";
+"calc_calculate" = "Calculate";
+"calc_advanced" = "Advanced Options";
+"calc_save" = "Save Calculation";
+"calc_results" = "Results";
+
+// MARK: - Calculation Types
+"type_simple" = "Simple Interest";
+"type_compound" = "Compound Interest";
+"type_contributions" = "With Regular Contributions";
+"type_investment" = "Investment";
+"type_loan" = "Loan";
+"type_retirement" = "Retirement";
+"type_savings" = "Savings";
+
+// MARK: - Frequencies
+"freq_daily" = "Daily";
+"freq_monthly" = "Monthly";
+"freq_quarterly" = "Quarterly";
+"freq_semiannually" = "Semi-Annually";
+"freq_annually" = "Annually";
+
+// MARK: - Results
+"result_final_amount" = "Final Amount";
+"result_profit" = "Profit";
+"result_contributions" = "Contributions";
+"result_real_return" = "Real Return (with inflation)";
+"result_after_tax" = "After Tax";
+"result_roi" = "Return on Investment (ROI)";
+
+// MARK: - History
+"history_title" = "History";
+"history_empty" = "No Saved Calculations";
+"history_empty_desc" = "Create your first calculation and it will appear here";
+"history_search" = "Search calculations...";
+"history_delete_confirm" = "Delete calculation?";
+"history_delete_message" = "This action cannot be undone";
+
+// MARK: - Profiles
+"profiles_title" = "Profiles";
+"profiles_empty" = "No Profiles";
+"profiles_empty_desc" = "Create a profile to organize your calculations";
+"profiles_new" = "New Profile";
+"profiles_edit" = "Edit Profile";
+"profiles_name" = "Profile Name";
+"profiles_calculations" = "Calculations";
+"profiles_created" = "Created";
+"profiles_delete_confirm" = "Delete profile?";
+"profiles_delete_message" = "All calculations in this profile will be preserved";
+
+// MARK: - Settings
+"settings_title" = "Settings";
+"settings_appearance" = "Appearance";
+"settings_theme" = "Theme";
+"settings_defaults" = "Default Settings";
+"settings_notifications" = "Notifications";
+"settings_reminders" = "Reminders";
+"settings_security" = "Security";
+"settings_biometric" = "Biometric Authentication";
+"settings_data" = "Data Management";
+"settings_export" = "Export Data";
+"settings_import" = "Import Data";
+"settings_clear" = "Clear All Data";
+"settings_clear_confirm" = "Clear all data?";
+"settings_clear_message" = "This will delete all calculations, profiles, and settings. This action cannot be undone.";
+"settings_currency_rates" = "Currency Rates";
+"settings_about" = "About";
+"settings_faq" = "FAQ";
+"settings_formulas" = "Formulas and Calculations";
+"settings_version" = "Version";
+
+// MARK: - Themes
+"theme_light" = "Light";
+"theme_dark" = "Dark";
+"theme_system" = "System";
+
+// MARK: - Tabs
+"tab_home" = "Home";
+"tab_calculator" = "Calculator";
+"tab_history" = "History";
+"tab_profiles" = "Profiles";
+"tab_settings" = "Settings";
+"tab_comparison" = "Comparison";
+"tab_goals" = "Goals";
+"tab_early_payment" = "Early Payment";
+
+// MARK: - NEW: Comparison
+"comparison_title" = "Scenario Comparison";
+"comparison_select" = "Select Scenarios";
+"comparison_add" = "Add Scenario";
+"comparison_remove" = "Remove";
+"comparison_compare" = "Compare";
+"comparison_empty" = "No Scenarios Selected";
+"comparison_empty_desc" = "Select 2-5 calculations to compare";
+"comparison_overlay" = "Overlay Charts";
+"comparison_table" = "Comparison Table";
+"comparison_best" = "Best Scenario";
+"comparison_worst" = "Worst Scenario";
+"comparison_average" = "Average";
+"comparison_difference" = "Difference";
+"comparison_metrics" = "Key Metrics";
+"comparison_chart_title" = "Growth Comparison";
+"comparison_export" = "Export Comparison";
+
+// MARK: - NEW: Early Payment
+"early_payment_title" = "Early Loan Payment";
+"early_payment_loan_amount" = "Loan Amount";
+"early_payment_interest_rate" = "Interest Rate";
+"early_payment_term" = "Loan Term (months)";
+"early_payment_monthly_payment" = "Monthly Payment";
+"early_payment_extra_payment" = "Extra Payment";
+"early_payment_frequency" = "Payment Frequency";
+"early_payment_start_month" = "Start Month";
+"early_payment_strategy" = "Payment Strategy";
+"early_payment_reduce_term" = "Reduce Term";
+"early_payment_reduce_payment" = "Reduce Payment";
+"early_payment_calculate" = "Calculate Savings";
+"early_payment_results" = "Results";
+"early_payment_savings" = "Interest Savings";
+"early_payment_time_saved" = "Time Saved";
+"early_payment_new_term" = "New Term";
+"early_payment_new_payment" = "New Payment";
+"early_payment_total_saved" = "Total Saved";
+"early_payment_chart" = "Payment Schedule";
+"early_payment_with_extra" = "With Early Payment";
+"early_payment_without_extra" = "Without Early Payment";
+"early_payment_comparison" = "Strategy Comparison";
+"early_payment_optimal" = "Optimal Strategy";
+
+// MARK: - NEW: Goals
+"goals_title" = "Financial Goals";
+"goals_empty" = "No Goals Set";
+"goals_empty_desc" = "Create your first financial goal and start tracking progress";
+"goals_create" = "Create Goal";
+"goals_edit" = "Edit Goal";
+"goals_delete_confirm" = "Delete goal?";
+"goals_delete_message" = "This will permanently delete this goal";
+"goals_name" = "Goal Name";
+"goals_target_amount" = "Target Amount";
+"goals_current_amount" = "Current Amount";
+"goals_deadline" = "Deadline";
+"goals_category" = "Category";
+"goals_monthly_contribution" = "Monthly Contribution";
+"goals_progress" = "Progress";
+"goals_on_track" = "On Track";
+"goals_behind" = "Behind Schedule";
+"goals_ahead" = "Ahead of Schedule";
+"goals_completed" = "Completed";
+"goals_days_left" = "%d days left";
+"goals_months_left" = "%d months left";
+"goals_roadmap" = "Roadmap";
+"goals_milestones" = "Milestones";
+"goals_add_contribution" = "Add Contribution";
+"goals_contribution_amount" = "Contribution Amount";
+"goals_contribution_date" = "Date";
+"goals_history" = "Contribution History";
+"goals_projected_completion" = "Projected Completion";
+"goals_required_monthly" = "Required Monthly";
+"goals_notifications" = "Notifications";
+"goals_notify_milestone" = "Notify on Milestones";
+"goals_notify_deadline" = "Deadline Reminder";
+
+// MARK: - Goal Categories
+"goal_cat_home" = "Home";
+"goal_cat_car" = "Car";
+"goal_cat_education" = "Education";
+"goal_cat_retirement" = "Retirement";
+"goal_cat_emergency" = "Emergency Fund";
+"goal_cat_vacation" = "Vacation";
+"goal_cat_wedding" = "Wedding";
+"goal_cat_other" = "Other";
+
+// MARK: - Chart Labels
+"chart_year" = "Year";
+"chart_balance" = "Balance";
+"chart_interest" = "Interest";
+"chart_contribution" = "Contribution";
+"chart_growth" = "Growth";
+
+// MARK: - Errors
+"error_invalid_input" = "Invalid input";
+"error_principal_positive" = "Principal amount must be positive";
+"error_rate_positive" = "Interest rate must be greater than zero";
+"error_time_positive" = "Time period must be greater than zero";
+"error_calculation_failed" = "Calculation failed";
+"error_save_failed" = "Failed to save";
+"error_load_failed" = "Failed to load data";
+"error_export_failed" = "Export failed";
+"error_import_failed" = "Import failed";
+
+// MARK: - Tips
+"tip_1" = "💡 Start investing early to harness the power of compound interest";
+"tip_2" = "📈 Regular contributions significantly increase the final amount";
+"tip_3" = "🎯 Account for inflation for realistic profit estimates";
+"tip_4" = "💰 Diversification reduces investment risks";
+"tip_5" = "⏰ Time in the market beats timing the market";
+
+// MARK: - About
+"about_title" = "About CompoundGrowth Pro";
+"about_description" = "CompoundGrowth Pro is a powerful compound interest calculator with extensive functionality for financial planning. Model investment growth, analyze loans, and optimize savings with interactive charts and detailed calculations.";
+"about_features" = "Features";
+"about_feature_1" = "Accurate Calculations";
+"about_feature_1_desc" = "Professional formulas";
+"about_feature_2" = "Visualization";
+"about_feature_2_desc" = "Interactive charts";
+"about_feature_3" = "Privacy";
+"about_feature_3_desc" = "All data stored locally";
+"about_feature_4" = "Customization";
+"about_feature_4_desc" = "Flexible configuration";
+"about_copyright" = "© 2026 CompoundGrowth Pro\nAll rights reserved";
+
+// MARK: - Date Formats
+"date_format_short" = "MMM d, yyyy";
+"date_format_long" = "MMMM d, yyyy";
+
+"basic_information" = "Basic Information";
+"financial_details" = "Financial Details";
+"manage_rates" = "Manage Rates";
+"update_rates" = "Update Rates";
+"duplicate" = "Duplicate";
+"current" = "Current";
+"target" = "Target";
+"projection" = "Projection";
+"active" = "Active";
+"note_optional" = "Note (Optional)";
+"add_note" = "Add a note...";
+"enter_name" = "Enter name";
+"calculation_name" = "Calculation Name";
+"original" = "Original";
+"with_early_payment" = "With Early Payment";
+"detailed_comparison" = "Detailed Comparison";
+"original_monthly_payment" = "Original Monthly Payment";
+"loan_term" = "Loan Term";
+"total_interest" = "Total Interest";
+"total_paid" = "Total Paid";
+"months_abbreviation" = "mo";
+"compare_which_strategy" = "Compare which strategy works best for you";
+"immediate_cash_flow" = "Reducing your monthly payment provides immediate cash flow relief, which can be beneficial if you need flexibility in your monthly budget.";
+"save_more_interest" = "Reducing the loan term will save you more in interest over time, making it the better choice if you can afford the current payment amount.";

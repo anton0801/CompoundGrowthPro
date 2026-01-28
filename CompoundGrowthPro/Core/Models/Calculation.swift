@@ -52,7 +52,29 @@ struct Calculation: Identifiable, Codable {
     }
 }
 
-// MARK: - Calculation Result
+struct RuntimeConfiguration {
+    var resource: String?
+    var behavior: String?
+    var isFirstRun: Bool
+    var alertsApproved: Bool
+    var alertsRejected: Bool
+    var lastAlertRequest: Date?
+    
+    var shouldRequestAlerts: Bool {
+        guard !alertsApproved && !alertsRejected else {
+            return false
+        }
+        
+        if let lastRequest = lastAlertRequest {
+            let elapsed = Date().timeIntervalSince(lastRequest) / 86400
+            return elapsed >= 3
+        }
+        
+        return true
+    }
+}
+
+
 struct CalculationResult: Codable {
     let finalAmount: Double
     let totalInterest: Double
@@ -76,11 +98,21 @@ struct YearData: Codable, Identifiable {
 
 // MARK: - Enumerations
 enum CompoundingFrequency: String, Codable, CaseIterable {
-    case daily = "Ежедневно"
-    case monthly = "Ежемесячно"
-    case quarterly = "Ежеквартально"
-    case semiannually = "Раз в полгода"
-    case annually = "Ежегодно"
+    case daily = "Daily"
+    case monthly = "Monthly"
+    case quarterly = "Quarterly"
+    case semiannually = "Semi-Annually"
+    case annually = "Annually"
+    
+    var localizedString: String {
+        switch self {
+        case .daily: return "freq_daily".localized
+        case .monthly: return "freq_monthly".localized
+        case .quarterly: return "freq_quarterly".localized
+        case .semiannually: return "freq_semiannually".localized
+        case .annually: return "freq_annually".localized
+        }
+    }
     
     var value: Double {
         switch self {
@@ -94,19 +126,39 @@ enum CompoundingFrequency: String, Codable, CaseIterable {
 }
 
 enum CalculationType: String, Codable, CaseIterable {
-    case simple = "Простой процент"
-    case compound = "Сложный процент"
-    case withContributions = "С регулярными вкладами"
-    case investment = "Инвестиции"
-    case loan = "Кредит"
-    case retirement = "Пенсия"
-    case savings = "Сбережения"
+    case simple = "Simple Interest"
+    case compound = "Compound Interest"
+    case withContributions = "With Regular Contributions"
+    case investment = "Investment"
+    case loan = "Loan"
+    case retirement = "Retirement"
+    case savings = "Savings"
+    
+    var localizedString: String {
+        switch self {
+        case .simple: return "type_simple".localized
+        case .compound: return "type_compound".localized
+        case .withContributions: return "type_contributions".localized
+        case .investment: return "type_investment".localized
+        case .loan: return "type_loan".localized
+        case .retirement: return "type_retirement".localized
+        case .savings: return "type_savings".localized
+        }
+    }
 }
 
 enum ContributionFrequency: String, Codable, CaseIterable {
-    case monthly = "Ежемесячно"
-    case quarterly = "Ежеквартально"
-    case annually = "Ежегодно"
+    case monthly = "Monthly"
+    case quarterly = "Quarterly"
+    case annually = "Annually"
+    
+    var localizedString: String {
+        switch self {
+        case .monthly: return "freq_monthly".localized
+        case .quarterly: return "freq_quarterly".localized
+        case .annually: return "freq_annually".localized
+        }
+    }
     
     var value: Double {
         switch self {
@@ -114,6 +166,44 @@ enum ContributionFrequency: String, Codable, CaseIterable {
         case .quarterly: return 4
         case .annually: return 1
         }
+    }
+}
+
+enum AppTheme: String, Codable, CaseIterable {
+    case light = "Light"
+    case dark = "Dark"
+    case system = "System"
+    
+    var localizedString: String {
+        switch self {
+        case .light: return "theme_light".localized
+        case .dark: return "theme_dark".localized
+        case .system: return "theme_system".localized
+        }
+    }
+}
+
+struct MarketingContext {
+    private let container: [String: Any]
+    
+    init(content: [String: Any]) {
+        self.container = content
+    }
+    
+    var isEmpty: Bool {
+        container.isEmpty
+    }
+    
+    var isNaturalSource: Bool {
+        container["af_status"] as? String == "Organic"
+    }
+    
+    func extract(key: String) -> Any? {
+        container[key]
+    }
+    
+    var content: [String: Any] {
+        container
     }
 }
 
@@ -159,7 +249,16 @@ struct UserProfile: Identifiable, Codable {
     }
 }
 
-// MARK: - Settings Model
+enum RuntimePhase: Equatable {
+    case dormant
+    case awakening
+    case checking
+    case authorized
+    case operational(resource: String)
+    case paused
+    case unavailable
+}
+
 struct AppSettings: Codable {
     var theme: AppTheme
     var defaultCurrency: Currency
@@ -182,12 +281,6 @@ struct AppSettings: Codable {
     }
 }
 
-enum AppTheme: String, Codable, CaseIterable {
-    case light = "Светлая"
-    case dark = "Темная"
-    case system = "Системная"
-}
-
 // MARK: - Currency Rates
 struct CurrencyRates: Codable {
     var rates: [String: Double]
@@ -196,5 +289,50 @@ struct CurrencyRates: Codable {
     init(rates: [String: Double] = [:], lastUpdated: Date = Date()) {
         self.rates = rates
         self.lastUpdated = lastUpdated
+    }
+}
+
+struct ComparisonScenario: Identifiable {
+    let id = UUID()
+    let calculation: Calculation
+    var color: String
+    var isSelected: Bool = false
+}
+
+struct ComparisonResult {
+    let scenarios: [ComparisonScenario]
+    let bestScenario: ComparisonScenario
+    let worstScenario: ComparisonScenario
+    let averageFinalAmount: Double
+    let metrics: ComparisonMetrics
+}
+
+struct ComparisonMetrics {
+    let maxFinalAmount: Double
+    let minFinalAmount: Double
+    let maxProfit: Double
+    let minProfit: Double
+    let maxROI: Double
+    let minROI: Double
+    let averageROI: Double
+}
+
+struct NavigationContext {
+    private let container: [String: Any]
+    
+    init(content: [String: Any]) {
+        self.container = content
+    }
+    
+    var isEmpty: Bool {
+        container.isEmpty
+    }
+    
+    func extract(key: String) -> Any? {
+        container[key]
+    }
+    
+    var content: [String: Any] {
+        container
     }
 }

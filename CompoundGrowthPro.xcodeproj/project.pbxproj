@@ -6,14 +6,76 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8FCEF0A92F290BEA00B844D1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8FCEF0A82F290BEA00B844D1 /* FirebaseAuth */; };
+		8FCEF0AB2F290BEA00B844D1 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8FCEF0AA2F290BEA00B844D1 /* FirebaseDatabase */; };
+		8FCEF0AD2F290BEA00B844D1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 8FCEF0AC2F290BEA00B844D1 /* FirebaseMessaging */; };
+		8FCEF0B02F290BF500B844D1 /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 8FCEF0AF2F290BF500B844D1 /* AppsFlyerLib */; };
+		8FF51ED12F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8FF51ECA2F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8FF51F272F291C7F005F4EE0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 8FF51F262F291C7F005F4EE0 /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8FF51ECF2F291C5D005F4EE0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8FCEEEC62F2798A500B844D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8FF51EC92F291C5D005F4EE0;
+			remoteInfo = ApplicationNotificationServiceExt;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8FF51ED62F291C5D005F4EE0 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8FF51ED12F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		8FCEEECE2F2798A500B844D1 /* CompoundGrowthPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CompoundGrowthPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FF51ECA2F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ApplicationNotificationServiceExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8FF51EC52F291BDF005F4EE0 /* Exceptions for "CompoundGrowthPro" folder in "CompoundGrowthPro" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8FCEEECD2F2798A500B844D1 /* CompoundGrowthPro */;
+		};
+		8FF51ED52F291C5D005F4EE0 /* Exceptions for "ApplicationNotificationServiceExt" folder in "ApplicationNotificationServiceExt" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8FF51EC92F291C5D005F4EE0 /* ApplicationNotificationServiceExt */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8FCEEED02F2798A500B844D1 /* CompoundGrowthPro */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8FF51EC52F291BDF005F4EE0 /* Exceptions for "CompoundGrowthPro" folder in "CompoundGrowthPro" target */,
+			);
 			path = CompoundGrowthPro;
+			sourceTree = "<group>";
+		};
+		8FF51ECB2F291C5D005F4EE0 /* ApplicationNotificationServiceExt */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8FF51ED52F291C5D005F4EE0 /* Exceptions for "ApplicationNotificationServiceExt" folder in "ApplicationNotificationServiceExt" target */,
+			);
+			path = ApplicationNotificationServiceExt;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +85,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FCEF0AD2F290BEA00B844D1 /* FirebaseMessaging in Frameworks */,
+				8FCEF0B02F290BF500B844D1 /* AppsFlyerLib in Frameworks */,
+				8FCEF0AB2F290BEA00B844D1 /* FirebaseDatabase in Frameworks */,
+				8FCEF0A92F290BEA00B844D1 /* FirebaseAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FF51EC72F291C5D005F4EE0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8FF51F272F291C7F005F4EE0 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +107,8 @@
 			isa = PBXGroup;
 			children = (
 				8FCEEED02F2798A500B844D1 /* CompoundGrowthPro */,
+				8FF51ECB2F291C5D005F4EE0 /* ApplicationNotificationServiceExt */,
+				8FF51F252F291C7F005F4EE0 /* Frameworks */,
 				8FCEEECF2F2798A500B844D1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +117,16 @@
 			isa = PBXGroup;
 			children = (
 				8FCEEECE2F2798A500B844D1 /* CompoundGrowthPro.app */,
+				8FF51ECA2F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8FF51F252F291C7F005F4EE0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,20 +139,49 @@
 				8FCEEECA2F2798A500B844D1 /* Sources */,
 				8FCEEECB2F2798A500B844D1 /* Frameworks */,
 				8FCEEECC2F2798A500B844D1 /* Resources */,
+				8FF51ED62F291C5D005F4EE0 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8FF51ED02F291C5D005F4EE0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8FCEEED02F2798A500B844D1 /* CompoundGrowthPro */,
 			);
 			name = CompoundGrowthPro;
 			packageProductDependencies = (
+				8FCEF0A82F290BEA00B844D1 /* FirebaseAuth */,
+				8FCEF0AA2F290BEA00B844D1 /* FirebaseDatabase */,
+				8FCEF0AC2F290BEA00B844D1 /* FirebaseMessaging */,
+				8FCEF0AF2F290BF500B844D1 /* AppsFlyerLib */,
 			);
 			productName = CompoundGrowthPro;
 			productReference = 8FCEEECE2F2798A500B844D1 /* CompoundGrowthPro.app */;
 			productType = "com.apple.product-type.application";
+		};
+		8FF51EC92F291C5D005F4EE0 /* ApplicationNotificationServiceExt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8FF51ED22F291C5D005F4EE0 /* Build configuration list for PBXNativeTarget "ApplicationNotificationServiceExt" */;
+			buildPhases = (
+				8FF51EC62F291C5D005F4EE0 /* Sources */,
+				8FF51EC72F291C5D005F4EE0 /* Frameworks */,
+				8FF51EC82F291C5D005F4EE0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8FF51ECB2F291C5D005F4EE0 /* ApplicationNotificationServiceExt */,
+			);
+			name = ApplicationNotificationServiceExt;
+			packageProductDependencies = (
+				8FF51F262F291C7F005F4EE0 /* FirebaseMessaging */,
+			);
+			productName = ApplicationNotificationServiceExt;
+			productReference = 8FF51ECA2F291C5D005F4EE0 /* ApplicationNotificationServiceExt.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -83,6 +196,9 @@
 					8FCEEECD2F2798A500B844D1 = {
 						CreatedOnToolsVersion = 16.4;
 					};
+					8FF51EC92F291C5D005F4EE0 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = 8FCEEEC92F2798A500B844D1 /* Build configuration list for PBXProject "CompoundGrowthPro" */;
@@ -91,21 +207,34 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 8FCEEEC52F2798A500B844D1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				8FCEF0AE2F290BF500B844D1 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8FCEEECF2F2798A500B844D1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				8FCEEECD2F2798A500B844D1 /* CompoundGrowthPro */,
+				8FF51EC92F291C5D005F4EE0 /* ApplicationNotificationServiceExt */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8FCEEECC2F2798A500B844D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FF51EC82F291C5D005F4EE0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +251,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8FF51EC62F291C5D005F4EE0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8FF51ED02F291C5D005F4EE0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8FF51EC92F291C5D005F4EE0 /* ApplicationNotificationServiceExt */;
+			targetProxy = 8FF51ECF2F291C5D005F4EE0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8FCEEED82F2798AB00B844D1 /* Debug */ = {
@@ -130,6 +274,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -191,6 +336,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -249,7 +395,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "CompoundGrowth Pro";
+				INFOPLIST_FILE = CompoundGrowthPro/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Growth Balance";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow to use it in this application";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Growth Balance may use limited device-level information to support calculation features, ensure app stability, and improve accuracy over time. This information is processed solely for internal evaluation and refinement. We do not use this data for cross-app tracking, user profiling, or third-party advertising.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -264,7 +414,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.3;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sttgrwodsad.CompoundGrowthPro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -288,7 +438,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "CompoundGrowth Pro";
+				INFOPLIST_FILE = CompoundGrowthPro/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Growth Balance";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow to use it in this application";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Growth Balance may use limited device-level information to support calculation features, ensure app stability, and improve accuracy over time. This information is processed solely for internal evaluation and refinement. We do not use this data for cross-app tracking, user profiling, or third-party advertising.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -303,7 +457,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.3;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sttgrwodsad.CompoundGrowthPro;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -314,6 +468,67 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Release;
+		};
+		8FF51ED32F291C5D005F4EE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ApplicationNotificationServiceExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ApplicationNotificationServiceExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sttgrwodsad.CompoundGrowthPro.ApplicationNotificationServiceExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		8FF51ED42F291C5D005F4EE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ApplicationNotificationServiceExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ApplicationNotificationServiceExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sttgrwodsad.CompoundGrowthPro.ApplicationNotificationServiceExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -338,7 +553,63 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		8FF51ED22F291C5D005F4EE0 /* Build configuration list for PBXNativeTarget "ApplicationNotificationServiceExt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8FF51ED32F291C5D005F4EE0 /* Debug */,
+				8FF51ED42F291C5D005F4EE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+		8FCEF0AE2F290BF500B844D1 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.17.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8FCEF0A82F290BEA00B844D1 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8FCEF0AA2F290BEA00B844D1 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		8FCEF0AC2F290BEA00B844D1 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		8FCEF0AF2F290BF500B844D1 /* AppsFlyerLib */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8FCEF0AE2F290BF500B844D1 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
+			productName = AppsFlyerLib;
+		};
+		8FF51F262F291C7F005F4EE0 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8FCEF0A72F290BEA00B844D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8FCEEEC62F2798A500B844D1 /* Project object */;
 }

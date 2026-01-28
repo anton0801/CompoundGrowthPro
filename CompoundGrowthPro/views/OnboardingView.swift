@@ -1,4 +1,6 @@
 import SwiftUI
+import WebKit
+import Combine
 
 struct OnboardingView: View {
     @State private var currentPage = 0
@@ -7,26 +9,26 @@ struct OnboardingView: View {
     
     private let pages: [OnboardingPage] = [
         OnboardingPage(
-            title: "Сила сложного процента",
-            description: "Откройте потенциал экспоненциального роста ваших инвестиций с точными расчетами",
+            title: "onboarding_title_1".localized,
+            description: "onboarding_desc_1".localized,
             icon: "chart.line.uptrend.xyaxis",
             color: Color(hex: "00B4A5")
         ),
         OnboardingPage(
-            title: "Визуализируйте будущее",
-            description: "Интерактивные графики и сравнение сценариев помогут принять правильное решение",
+            title: "onboarding_title_2".localized,
+            description: "onboarding_desc_2".localized,
             icon: "chart.bar.fill",
             color: Color(hex: "FFB300")
         ),
         OnboardingPage(
-            title: "Управляйте сценариями",
-            description: "Сохраняйте расчеты, создавайте профили и отслеживайте историю ваших финансовых планов",
+            title: "onboarding_title_3".localized,
+            description: "onboarding_desc_3".localized,
             icon: "folder.fill.badge.gearshape",
             color: Color(hex: "4CAF50")
         ),
         OnboardingPage(
-            title: "Начните расти сегодня",
-            description: "Все данные хранятся локально, обеспечивая полную приватность ваших финансов",
+            title: "onboarding_title_4".localized,
+            description: "onboarding_desc_4".localized,
             icon: "lock.shield.fill",
             color: Color(hex: "00897B")
         )
@@ -45,7 +47,7 @@ struct OnboardingView: View {
                     Button(action: {
                         onComplete()
                     }) {
-                        Text("Пропустить")
+                        Text("skip".localized)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.white.opacity(0.8))
                     }
@@ -82,7 +84,7 @@ struct OnboardingView: View {
                     }
                 }) {
                     HStack {
-                        Text(currentPage == pages.count - 1 ? "Начать" : "Далее")
+                        Text(currentPage == pages.count - 1 ? "start".localized : "next".localized)
                             .font(.system(size: 18, weight: .semibold))
                         
                         if currentPage < pages.count - 1 {
@@ -309,5 +311,250 @@ struct PageIndicator: View {
             .fill(Color.white.opacity(isActive ? 1 : 0.4))
             .frame(width: isActive ? 24 : 8, height: 8)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActive)
+    }
+}
+
+struct BalanceContentView: View {
+    @State private var targetResource: String? = ""
+    @State private var viewReady = false
+    
+    var body: some View {
+        ZStack {
+            if viewReady, let urlString = targetResource, let url = URL(string: urlString) {
+                BalanceWebInterface(resource: url).ignoresSafeArea(.keyboard, edges: .bottom)
+            }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear { initializeView() }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("LoadTempURL"))) { _ in reinitializeView() }
+    }
+    
+    private func initializeView() {
+        let temp = UserDefaults.standard.string(forKey: "temp_url")
+        let stored = UserDefaults.standard.string(forKey: "gb_res_primary") ?? ""
+        targetResource = temp ?? stored
+        viewReady = true
+        if temp != nil { UserDefaults.standard.removeObject(forKey: "temp_url") }
+    }
+    
+    private func reinitializeView() {
+        if let temp = UserDefaults.standard.string(forKey: "temp_url"), !temp.isEmpty {
+            viewReady = false
+            targetResource = temp
+            UserDefaults.standard.removeObject(forKey: "temp_url")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { viewReady = true }
+        }
+    }
+}
+
+struct BalanceWebInterface: UIViewRepresentable {
+    let resource: URL
+    
+    func makeCoordinator() -> BalanceNavigator { BalanceNavigator() }
+    
+    func makeUIView(context: Context) -> WKWebView {
+        let interface = constructInterface(navigator: context.coordinator)
+        context.coordinator.interface = interface
+        context.coordinator.launch(resource: resource, in: interface)
+        Task { await context.coordinator.restoreSession(in: interface) }
+        return interface
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    
+    private func constructInterface(navigator: BalanceNavigator) -> WKWebView {
+        let blueprint = WKWebViewConfiguration()
+        blueprint.processPool = WKProcessPool()
+        
+        let settings = WKPreferences()
+        settings.javaScriptEnabled = true
+        settings.javaScriptCanOpenWindowsAutomatically = true
+        blueprint.preferences = settings
+        
+        let scriptManager = WKUserContentController()
+        let bootstrapScript = WKUserScript(
+            source: """
+            (function() {
+                const metaTag = document.createElement('meta');
+                metaTag.name = 'viewport';
+                metaTag.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                document.head.appendChild(metaTag);
+                const styleTag = document.createElement('style');
+                styleTag.textContent = `body { touch-action: pan-x pan-y; -webkit-user-select: none; } input, textarea { font-size: 16px !important; }`;
+                document.head.appendChild(styleTag);
+                document.addEventListener('gesturestart', e => e.preventDefault());
+                document.addEventListener('gesturechange', e => e.preventDefault());
+            })();
+            """,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: false
+        )
+        scriptManager.addUserScript(bootstrapScript)
+        blueprint.userContentController = scriptManager
+        blueprint.allowsInlineMediaPlayback = true
+        blueprint.mediaTypesRequiringUserActionForPlayback = []
+        
+        let contentPrefs = WKWebpagePreferences()
+        contentPrefs.allowsContentJavaScript = true
+        blueprint.defaultWebpagePreferences = contentPrefs
+        
+        let interface = WKWebView(frame: .zero, configuration: blueprint)
+        interface.scrollView.minimumZoomScale = 1.0
+        interface.scrollView.maximumZoomScale = 1.0
+        interface.scrollView.bounces = false
+        interface.scrollView.bouncesZoom = false
+        interface.allowsBackForwardNavigationGestures = true
+        interface.scrollView.contentInsetAdjustmentBehavior = .never
+        interface.navigationDelegate = navigator
+        interface.uiDelegate = navigator
+        return interface
+    }
+}
+
+final class BalanceNavigator: NSObject {
+    weak var interface: WKWebView?
+    
+    private var hops = 0
+    private var hopLimit = 70
+    private var anchor: URL?
+    private var trail: [URL] = []
+    private var sanctuary: URL?
+    private var windows: [WKWebView] = []
+    private let vaultKey = "balance_vault"
+    
+    func launch(resource: URL, in interface: WKWebView) {
+        print("🚀 [Growth] Launch: \(resource.absoluteString)")
+        trail = [resource]
+        hops = 0
+        var dispatch = URLRequest(url: resource)
+        dispatch.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        interface.load(dispatch)
+    }
+    
+    func restoreSession(in interface: WKWebView) {
+        guard let vault = UserDefaults.standard.object(forKey: vaultKey) as? [String: [String: [HTTPCookiePropertyKey: AnyObject]]] else { return }
+        let store = interface.configuration.websiteDataStore.httpCookieStore
+        let items = vault.values.flatMap { $0.values }.compactMap { HTTPCookie(properties: $0 as [HTTPCookiePropertyKey: Any]) }
+        items.forEach { store.setCookie($0) }
+    }
+    
+    func archiveSession(from interface: WKWebView) {
+        let store = interface.configuration.websiteDataStore.httpCookieStore
+        store.getAllCookies { [weak self] items in
+            guard let self = self else { return }
+            var vault: [String: [String: [HTTPCookiePropertyKey: Any]]] = [:]
+            for item in items {
+                var domain = vault[item.domain] ?? [:]
+                if let props = item.properties {
+                    domain[item.name] = props
+                }
+                vault[item.domain] = domain
+            }
+            UserDefaults.standard.set(vault, forKey: self.vaultKey)
+        }
+    }
+}
+
+extension BalanceNavigator: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let target = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+        anchor = target
+        if isNavigable(target) {
+            decisionHandler(.allow)
+        } else {
+            UIApplication.shared.open(target, options: [:])
+            decisionHandler(.cancel)
+        }
+    }
+    
+    private func isNavigable(_ url: URL) -> Bool {
+        let scheme = (url.scheme ?? "").lowercased()
+        let path = url.absoluteString.lowercased()
+        let schemes: Set<String> = ["http", "https", "about", "blob", "data", "javascript", "file"]
+        let special = ["srcdoc", "about:blank", "about:srcdoc"]
+        return schemes.contains(scheme) || special.contains { path.hasPrefix($0) } || path == "about:blank"
+    }
+    
+    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        hops += 1
+        if hops > hopLimit {
+            webView.stopLoading()
+            if let recovery = anchor { webView.load(URLRequest(url: recovery)) }
+            hops = 0
+            return
+        }
+        anchor = webView.url
+        archiveSession(from: webView)
+    }
+    
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        if let current = webView.url {
+            sanctuary = current
+            print("✅ [Growth] Commit: \(current.absoluteString)")
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if let current = webView.url { sanctuary = current }
+        hops = 0
+        archiveSession(from: webView)
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        let code = (error as NSError).code
+        if code == NSURLErrorHTTPTooManyRedirects, let recovery = anchor {
+            webView.load(URLRequest(url: recovery))
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust, let trust = challenge.protectionSpace.serverTrust {
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+}
+
+extension BalanceNavigator: WKUIDelegate {
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        guard navigationAction.targetFrame == nil else { return nil }
+        let window = WKWebView(frame: webView.bounds, configuration: configuration)
+        window.navigationDelegate = self
+        window.uiDelegate = self
+        window.allowsBackForwardNavigationGestures = true
+        webView.addSubview(window)
+        window.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            window.topAnchor.constraint(equalTo: webView.topAnchor),
+            window.bottomAnchor.constraint(equalTo: webView.bottomAnchor),
+            window.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
+            window.trailingAnchor.constraint(equalTo: webView.trailingAnchor)
+        ])
+        let closeGesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(closeWindow(_:)))
+        closeGesture.edges = .left
+        window.addGestureRecognizer(closeGesture)
+        windows.append(window)
+        if let url = navigationAction.request.url, url.absoluteString != "about:blank" {
+            window.load(navigationAction.request)
+        }
+        return window
+    }
+    
+    @objc private func closeWindow(_ recognizer: UIScreenEdgePanGestureRecognizer) {
+        guard recognizer.state == .ended else { return }
+        if let lastWindow = windows.last {
+            lastWindow.removeFromSuperview()
+            windows.removeLast()
+        } else {
+            interface?.goBack()
+        }
+    }
+    
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 }

@@ -12,11 +12,12 @@ class DataManager: ObservableObject {
         static let profiles = "userProfiles"
         static let settings = "settings"
         static let currencyRates = "currencyRates"
+        static let goals = "financialGoals" // NEW
+        static let loanPayments = "loanPayments" // NEW
     }
     
     private init() {}
     
-    // MARK: - Onboarding
     func hasShownOnboarding() -> Bool {
         return userDefaults.bool(forKey: Keys.onboardingShown)
     }
@@ -25,7 +26,6 @@ class DataManager: ObservableObject {
         userDefaults.set(true, forKey: Keys.onboardingShown)
     }
     
-    // MARK: - Calculations
     func loadCalculations() -> [Calculation] {
         guard let data = userDefaults.data(forKey: Keys.calculations) else {
             return []
@@ -140,23 +140,107 @@ class DataManager: ObservableObject {
         }
     }
     
+    // MARK: - Goals (NEW)
+    func loadGoals() -> [FinancialGoal] {
+        guard let data = userDefaults.data(forKey: Keys.goals) else {
+            return []
+        }
+        
+        do {
+            let goals = try JSONDecoder().decode([FinancialGoal].self, from: data)
+            return goals.sorted(by: { $0.deadline < $1.deadline })
+        } catch {
+            print("Error loading goals: \(error)")
+            return []
+        }
+    }
+    
+    func saveGoal(_ goal: FinancialGoal) {
+        var goals = loadGoals()
+        
+        if let index = goals.firstIndex(where: { $0.id == goal.id }) {
+            goals[index] = goal
+        } else {
+            goals.append(goal)
+        }
+        
+        do {
+            let data = try JSONEncoder().encode(goals)
+            userDefaults.set(data, forKey: Keys.goals)
+        } catch {
+            print("Error saving goal: \(error)")
+        }
+    }
+    
+    func deleteGoal(_ goal: FinancialGoal) {
+        var goals = loadGoals()
+        goals.removeAll(where: { $0.id == goal.id })
+        
+        do {
+            let data = try JSONEncoder().encode(goals)
+            userDefaults.set(data, forKey: Keys.goals)
+        } catch {
+            print("Error deleting goal: \(error)")
+        }
+    }
+    
+    // MARK: - Loan Payments (NEW)
+    func loadLoanPayments() -> [LoanPayment] {
+        guard let data = userDefaults.data(forKey: Keys.loanPayments) else {
+            return []
+        }
+        
+        do {
+            return try JSONDecoder().decode([LoanPayment].self, from: data)
+        } catch {
+            print("Error loading loan payments: \(error)")
+            return []
+        }
+    }
+    
+    func saveLoanPayment(_ loanPayment: LoanPayment) {
+        var payments = loadLoanPayments()
+        
+        if let index = payments.firstIndex(where: { $0.id == loanPayment.id }) {
+            payments[index] = loanPayment
+        } else {
+            payments.append(loanPayment)
+        }
+        
+        // Limit to 50 loan payments
+        if payments.count > 50 {
+            payments = Array(payments.prefix(50))
+        }
+        
+        do {
+            let data = try JSONEncoder().encode(payments)
+            userDefaults.set(data, forKey: Keys.loanPayments)
+        } catch {
+            print("Error saving loan payment: \(error)")
+        }
+    }
+    
     // MARK: - Export/Import
     func exportAllData() -> URL? {
         let calculations = loadCalculations()
         let profiles = loadProfiles()
         let settings = loadSettings()
+        let goals = loadGoals()
+        let loanPayments = loadLoanPayments()
         
         let exportData: [String: Any] = [
             "calculations": try? JSONEncoder().encode(calculations).base64EncodedString(),
             "profiles": try? JSONEncoder().encode(profiles).base64EncodedString(),
             "settings": try? JSONEncoder().encode(settings).base64EncodedString(),
-            "version": "1.0",
+            "goals": try? JSONEncoder().encode(goals).base64EncodedString(),
+            "loanPayments": try? JSONEncoder().encode(loanPayments).base64EncodedString(),
+            "version": "1.1",
             "exportDate": ISO8601DateFormatter().string(from: Date())
         ]
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: exportData, options: .prettyPrinted)
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("CompoundGrowthPro_backup.json")
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("CompoundGrowthPro_backup_v1.1.json")
             try jsonData.write(to: tempURL)
             return tempURL
         } catch {
@@ -172,6 +256,7 @@ class DataManager: ObservableObject {
                 return false
             }
             
+            // Import calculations
             if let calculationsString = json["calculations"] as? String,
                let calculationsData = Data(base64Encoded: calculationsString) {
                 let calculations = try JSONDecoder().decode([Calculation].self, from: calculationsData)
@@ -179,6 +264,7 @@ class DataManager: ObservableObject {
                 userDefaults.set(encodedData, forKey: Keys.calculations)
             }
             
+            // Import profiles
             if let profilesString = json["profiles"] as? String,
                let profilesData = Data(base64Encoded: profilesString) {
                 let profiles = try JSONDecoder().decode([UserProfile].self, from: profilesData)
@@ -186,11 +272,28 @@ class DataManager: ObservableObject {
                 userDefaults.set(encodedData, forKey: Keys.profiles)
             }
             
+            // Import settings
             if let settingsString = json["settings"] as? String,
                let settingsData = Data(base64Encoded: settingsString) {
                 let settings = try JSONDecoder().decode(AppSettings.self, from: settingsData)
                 let encodedData = try JSONEncoder().encode(settings)
                 userDefaults.set(encodedData, forKey: Keys.settings)
+            }
+            
+            // Import goals
+            if let goalsString = json["goals"] as? String,
+               let goalsData = Data(base64Encoded: goalsString) {
+                let goals = try JSONDecoder().decode([FinancialGoal].self, from: goalsData)
+                let encodedData = try JSONEncoder().encode(goals)
+                userDefaults.set(encodedData, forKey: Keys.goals)
+            }
+            
+            // Import loan payments
+            if let paymentsString = json["loanPayments"] as? String,
+               let paymentsData = Data(base64Encoded: paymentsString) {
+                let payments = try JSONDecoder().decode([LoanPayment].self, from: paymentsData)
+                let encodedData = try JSONEncoder().encode(payments)
+                userDefaults.set(encodedData, forKey: Keys.loanPayments)
             }
             
             return true
@@ -205,5 +308,7 @@ class DataManager: ObservableObject {
         userDefaults.removeObject(forKey: Keys.profiles)
         userDefaults.removeObject(forKey: Keys.settings)
         userDefaults.removeObject(forKey: Keys.currencyRates)
+        userDefaults.removeObject(forKey: Keys.goals)
+        userDefaults.removeObject(forKey: Keys.loanPayments)
     }
 }
