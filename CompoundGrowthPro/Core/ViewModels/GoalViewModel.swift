@@ -9,7 +9,6 @@ class GoalViewModel: ObservableObject {
     @Published var newContributionNote: String = ""
     
     private let dataManager: DataManager
-    private var cancellables = Set<AnyCancellable>()
     
     init(goal: FinancialGoal? = nil, dataManager: DataManager = .shared) {
         self.goal = goal ?? FinancialGoal(
@@ -38,6 +37,9 @@ class GoalViewModel: ObservableObject {
         
         saveGoal()
         checkMilestones()
+        
+        // Haptic feedback
+        HapticManager.shared.notification(type: .success)
     }
     
     func deleteContribution(_ contribution: Contribution) {
@@ -98,65 +100,3 @@ class GoalViewModel: ObservableObject {
     }
 }
 
-class GoalsListViewModel: ObservableObject {
-    @Published var goals: [FinancialGoal] = []
-    @Published var showCreateGoal = false
-    @Published var selectedGoal: FinancialGoal?
-    @Published var filterCategory: GoalCategory?
-    @Published var sortOption: GoalSortOption = .deadline
-    
-    private let dataManager: DataManager
-    
-    enum GoalSortOption {
-        case deadline
-        case progress
-        case amount
-        case name
-    }
-    
-    init(dataManager: DataManager = .shared) {
-        self.dataManager = dataManager
-        loadGoals()
-    }
-    
-    func loadGoals() {
-        goals = dataManager.loadGoals()
-        sortGoals()
-    }
-    
-    func deleteGoal(_ goal: FinancialGoal) {
-        dataManager.deleteGoal(goal)
-        loadGoals()
-    }
-    
-    var filteredGoals: [FinancialGoal] {
-        var filtered = goals
-        
-        if let category = filterCategory {
-            filtered = filtered.filter { $0.category == category }
-        }
-        
-        return filtered
-    }
-    
-    var activeGoals: [FinancialGoal] {
-        filteredGoals.filter { !$0.isCompleted }
-    }
-    
-    var completedGoals: [FinancialGoal] {
-        filteredGoals.filter { $0.isCompleted }
-    }
-    
-    func sortGoals() {
-        switch sortOption {
-        case .deadline:
-            goals.sort { $0.deadline < $1.deadline }
-        case .progress:
-            goals.sort { $0.progress > $1.progress }
-        case .amount:
-            goals.sort { $0.targetAmount > $1.targetAmount }
-        case .name:
-            goals.sort { $0.name < $1.name }
-        }
-    }
-}

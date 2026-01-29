@@ -48,12 +48,12 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
-    @StateObject private var dashboardVM = DashboardViewModel()
+    @StateObject private var dataManager = DataManager.shared
     @State private var selectedTab = 0
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            DashboardView(viewModel: dashboardVM, selectedTab: $selectedTab)
+            DashboardView(viewModel: DashboardViewModel(dataManager: dataManager), selectedTab: $selectedTab)
                 .tabItem {
                     Label("tab_home".localized, systemImage: "house.fill")
                 }
@@ -83,7 +83,7 @@ struct MainTabView: View {
                 }
                 .tag(4)
             
-            HistoryView(viewModel: dashboardVM)
+            HistoryView(viewModel: DashboardViewModel(dataManager: dataManager))
                 .tabItem {
                     Label("tab_history".localized, systemImage: "clock.fill")
                 }
@@ -96,6 +96,7 @@ struct MainTabView: View {
                 .tag(6)
         }
         .accentColor(Color(hex: "00B4A5"))
+        .environmentObject(dataManager)
     }
 }
 

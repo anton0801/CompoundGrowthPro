@@ -39,17 +39,17 @@ class CalculatorViewModel: ObservableObject {
     
     private func validateInputs() -> Bool {
         if calculation.principal < 0 {
-            errorMessage = "Начальная сумма должна быть положительной"
+            errorMessage = "error_principal_positive".localized
             return false
         }
         
         if calculation.rate <= 0 {
-            errorMessage = "Процентная ставка должна быть больше нуля"
+            errorMessage = "error_rate_positive".localized
             return false
         }
         
         if calculation.time <= 0 {
-            errorMessage = "Период должен быть больше нуля"
+            errorMessage = "error_time_positive".localized
             return false
         }
         
@@ -100,7 +100,6 @@ class CalculatorViewModel: ObservableObject {
             let contributionPerPeriod = monthlyContribution * (12.0 / contributionsPerYear) / periodsPerYear
             
             for year in 1...Int(t) {
-                var yearStartBalance = balance
                 var yearInterest = 0.0
                 var yearContributions = 0.0
                 
@@ -178,141 +177,20 @@ class CalculatorViewModel: ObservableObject {
     
     // MARK: - Save Calculation
     func saveCalculation() {
-        dataManager.saveCalculation(calculation)
+        // Set timestamp
+        var updatedCalculation = calculation
+        updatedCalculation.createdAt = Date()
+        
+        // Save to data manager (will trigger update)
+        dataManager.saveCalculation(updatedCalculation)
+        
+        // Show success feedback
+        HapticManager.shared.notification(type: .success)
     }
     
     // MARK: - Reset
     func reset() {
         calculation = Calculation()
         errorMessage = nil
-    }
-}
-
-//
-//  DashboardViewModel.swift
-//  CompoundGrowth Pro
-//
-
-import Foundation
-import Combine
-
-class DashboardViewModel: ObservableObject {
-    @Published var calculations: [Calculation] = []
-    @Published var profiles: [UserProfile] = []
-    @Published var settings: AppSettings
-    @Published var searchText = ""
-    @Published var selectedProfile: UserProfile?
-    
-    private let dataManager: DataManager
-    private var cancellables = Set<AnyCancellable>()
-    
-    var filteredCalculations: [Calculation] {
-        if searchText.isEmpty {
-            if let profileID = selectedProfile?.id {
-                return calculations.filter { $0.profileID == profileID }
-            }
-            return calculations
-        } else {
-            return calculations.filter { calculation in
-                calculation.name.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-    }
-    
-    var recentCalculations: [Calculation] {
-        Array(calculations.sorted(by: { $0.createdAt > $1.createdAt }).prefix(3))
-    }
-    
-    init(dataManager: DataManager = .shared) {
-        self.dataManager = dataManager
-        self.settings = dataManager.loadSettings()
-        loadData()
-    }
-    
-    func loadData() {
-        calculations = dataManager.loadCalculations()
-        profiles = dataManager.loadProfiles()
-    }
-    
-    func deleteCalculation(_ calculation: Calculation) {
-        dataManager.deleteCalculation(calculation)
-        loadData()
-    }
-    
-    func deleteProfile(_ profile: UserProfile) {
-        dataManager.deleteProfile(profile)
-        loadData()
-    }
-    
-    func selectProfile(_ profile: UserProfile?) {
-        selectedProfile = profile
-    }
-}
-
-//
-//  ProfileViewModel.swift
-//  CompoundGrowth Pro
-//
-
-import Foundation
-import Combine
-
-class ProfileViewModel: ObservableObject {
-    @Published var profile: UserProfile
-    @Published var isNew: Bool
-    
-    private let dataManager: DataManager
-    
-    init(profile: UserProfile? = nil, dataManager: DataManager = .shared) {
-        if let profile = profile {
-            self.profile = profile
-            self.isNew = false
-        } else {
-            self.profile = UserProfile(name: "Новый профиль")
-            self.isNew = true
-        }
-        self.dataManager = dataManager
-    }
-    
-    func save() {
-        dataManager.saveProfile(profile)
-    }
-}
-
-//
-//  SettingsViewModel.swift
-//  CompoundGrowth Pro
-//
-
-import Foundation
-import Combine
-
-class SettingsViewModel: ObservableObject {
-    @Published var settings: AppSettings
-    @Published var showExportSheet = false
-    @Published var showImportSheet = false
-    
-    private let dataManager: DataManager
-    
-    init(dataManager: DataManager = .shared) {
-        self.dataManager = dataManager
-        self.settings = dataManager.loadSettings()
-    }
-    
-    func saveSettings() {
-        dataManager.saveSettings(settings)
-    }
-    
-    func exportData() -> URL? {
-        return dataManager.exportAllData()
-    }
-    
-    func importData(from url: URL) -> Bool {
-        return dataManager.importData(from: url)
-    }
-    
-    func clearAllData() {
-        dataManager.clearAllData()
-        settings = AppSettings()
     }
 }

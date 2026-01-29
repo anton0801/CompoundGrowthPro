@@ -16,11 +16,25 @@ class ComparisonViewModel: ObservableObject {
     
     init(dataManager: DataManager = .shared) {
         self.dataManager = dataManager
+        
+        // Subscribe to calculations changes
+        setupSubscriptions()
+        
+        // Initial load
         loadCalculations()
     }
     
+    private func setupSubscriptions() {
+        dataManager.$calculations
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newCalculations in
+                self?.availableCalculations = newCalculations.filter { $0.result != nil }
+            }
+            .store(in: &cancellables)
+    }
+    
     func loadCalculations() {
-        availableCalculations = dataManager.loadCalculations().filter { $0.result != nil }
+        availableCalculations = dataManager.calculations.filter { $0.result != nil }
     }
     
     func addScenario(_ calculation: Calculation) {
@@ -99,4 +113,5 @@ class ComparisonViewModel: ObservableObject {
         
         return nil
     }
+    
 }
