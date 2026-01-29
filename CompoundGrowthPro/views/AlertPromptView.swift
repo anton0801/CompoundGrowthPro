@@ -7,6 +7,9 @@ struct AlertPromptView: View {
     var body: some View {
         GeometryReader { g in
             ZStack {
+                Color.black
+                    .ignoresSafeArea()
+                
                 Image("main_push_bg")
                     .resizable()
                     .scaledToFill()
