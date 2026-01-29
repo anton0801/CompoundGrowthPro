@@ -12,6 +12,7 @@ struct AlertPromptView: View {
                     .scaledToFill()
                     .frame(width: g.size.width, height: g.size.height)
                     .ignoresSafeArea()
+                    .opacity(0.7)
                 
                 VStack(spacing: 12) {
                     Spacer()
@@ -34,7 +35,7 @@ struct AlertPromptView: View {
             }
         }
         .ignoresSafeArea()
-        
+        .preferredColorScheme(.dark)
         
     }
     

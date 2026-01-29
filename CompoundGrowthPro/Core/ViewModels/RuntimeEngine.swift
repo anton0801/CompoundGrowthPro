@@ -8,31 +8,41 @@ import Network
 @MainActor
 final class RuntimeEngine: ObservableObject {
     
+    // MARK: - Published State
     @Published private(set) var phase: RuntimePhase = .dormant
     @Published private(set) var activeResource: String?
     @Published var presentAlertPrompt: Bool = false
     
+    // MARK: - Dependencies
     private let repository: RepositoryProtocol
     private let inspector: InspectorProtocol
     private let connector: ConnectorProtocol
     
+    // MARK: - State Management (NEW STRUCTURE)
     private var marketingCtx = MarketingContext(content: [:])
     private var navigationCtx = NavigationContext(content: [:])
-    private var runtimeConfig = RuntimeConfiguration(
-        resource: nil,
-        behavior: nil,
-        isFirstRun: true,
-        alertsApproved: false,
-        alertsRejected: false,
-        lastAlertRequest: nil
-    )
     
-    private var observers = Set<AnyCancellable>()
-    private var watchdog: Task<Void, Never>?
-    private var locked = false
+    // UNIQUE: Separate state holders instead of single config
+    private var cachedEndpoint: String?
+    private var operationMode: String?
+    private var virginLaunch: Bool = true
+    private var notificationState: NotificationState = .unknown
+    private var lastPromptMoment: Date?
     
-    private let monitor = NWPathMonitor()
+    // UNIQUE: State management
+    private enum NotificationState {
+        case unknown
+        case accepted
+        case declined
+    }
     
+    private var subscriptions = Set<AnyCancellable>()
+    private var guardTimer: Task<Void, Never>?
+    private var engineLocked = false
+    
+    private let networkWatcher = NWPathMonitor()
+    
+    // MARK: - Initialization (RESTRUCTURED)
     init(
         repository: RepositoryProtocol = Repository(),
         inspector: InspectorProtocol = Inspector(),
@@ -42,17 +52,20 @@ final class RuntimeEngine: ObservableObject {
         self.inspector = inspector
         self.connector = connector
         
-        loadConfiguration()
-        watchConnectivity()
-        boot()
+        // UNIQUE: Separate loading instead of loadConfiguration()
+        restoreState()
+        setupNetworkObserver()
+        initiateStartup()
     }
+    
+    // MARK: - Public Interface
     
     func ingest(marketing data: [String: Any]) {
         marketingCtx = MarketingContext(content: data)
         repository.store(marketing: data)
         
         Task {
-            await runInspection()
+            await performCheck()
         }
     }
     
@@ -62,64 +75,83 @@ final class RuntimeEngine: ObservableObject {
     }
     
     func approveAlerts() {
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .sound, .badge]
-        ) { [weak self] approved, _ in
-            Task { @MainActor in
-                self?.repository.store(alertApproval: approved)
-                self?.repository.store(alertRejection: !approved)
-                self?.runtimeConfig.alertsApproved = approved
-                self?.runtimeConfig.alertsRejected = !approved
+        requestNotificationAuthorization { [weak self] granted in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
                 
-                if approved {
+                self.repository.store(alertApproval: granted)
+                self.repository.store(alertRejection: !granted)
+                self.notificationState = granted ? .accepted : .declined
+                
+                if granted {
                     UIApplication.shared.registerForRemoteNotifications()
                 }
                 
-                self?.presentAlertPrompt = false
+                self.presentAlertPrompt = false
             }
         }
     }
     
     func postponeAlerts() {
-        repository.store(alertRequestTime: Date())
-        runtimeConfig.lastAlertRequest = Date()
+        let now = Date()
+        repository.store(alertRequestTime: now)
+        lastPromptMoment = now
         presentAlertPrompt = false
     }
     
-    private func loadConfiguration() {
-        runtimeConfig = RuntimeConfiguration(
-            resource: repository.fetchResource(),
-            behavior: repository.fetchBehavior(),
-            isFirstRun: repository.checkFirstRun(),
-            alertsApproved: repository.checkAlertApproval(),
-            alertsRejected: repository.checkAlertRejection(),
-            lastAlertRequest: repository.fetchAlertRequestTime()
-        )
+    // MARK: - Private Implementation (COMPLETELY NEW LOGIC)
+    
+    // UNIQUE: Split configuration loading
+    private func restoreState() {
+        // Load individually instead of single config object
+        cachedEndpoint = repository.fetchResource()
+        operationMode = repository.fetchBehavior()
+        virginLaunch = repository.checkFirstRun()
+        
+        // UNIQUE: Convert bool to enum
+        let approved = repository.checkAlertApproval()
+        let declined = repository.checkAlertRejection()
+        
+        if approved {
+            notificationState = .accepted
+        } else if declined {
+            notificationState = .declined
+        } else {
+            notificationState = .unknown
+        }
+        
+        lastPromptMoment = repository.fetchAlertRequestTime()
     }
     
-    private func boot() {
+    // UNIQUE: Different startup sequence
+    private func initiateStartup() {
         phase = .awakening
-        armWatchdog()
+        activateGuard()
     }
     
-    private func armWatchdog() {
-        watchdog = Task {
+    // UNIQUE: Guard instead of watchdog
+    private func activateGuard() {
+        guardTimer = Task {
             try? await Task.sleep(nanoseconds: 30_000_000_000)
             
-            if !locked {
-                await MainActor.run {
-                    self.phase = .paused
-                }
+            guard !engineLocked else { return }
+            
+            await MainActor.run {
+                self.phase = .paused
             }
         }
     }
     
-    private func watchConnectivity() {
-        monitor.pathUpdateHandler = { [weak self] path in
-            Task { @MainActor in
-                guard let self = self, !self.locked else { return }
+    // UNIQUE: Observer instead of monitor
+    private func setupNetworkObserver() {
+        networkWatcher.pathUpdateHandler = { [weak self] currentPath in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                guard !self.engineLocked else { return }
                 
-                if path.status == .satisfied {
+                let isConnected = currentPath.status == .satisfied
+                
+                if isConnected {
                     if self.phase == .unavailable {
                         self.phase = .paused
                     }
@@ -128,20 +160,22 @@ final class RuntimeEngine: ObservableObject {
                 }
             }
         }
-        monitor.start(queue: .global(qos: .background))
+        networkWatcher.start(queue: .global(qos: .background))
     }
     
-    private func runInspection() async {
-        guard activeResource == nil else { return }
+    // UNIQUE: Check instead of inspection
+    private func performCheck() async {
+        // Don't check if already have resource
+        if activeResource != nil { return }
         
         phase = .checking
         
         do {
-            let valid = try await inspector.inspect()
+            let isValid = try await inspector.inspect()
             
-            if valid {
+            if isValid {
                 phase = .authorized
-                await advance()
+                await continueExecution()
             } else {
                 phase = .paused
             }
@@ -150,93 +184,151 @@ final class RuntimeEngine: ObservableObject {
         }
     }
     
-    private func advance() async {
-        if marketingCtx.isEmpty {
-            recoverResource()
+    // UNIQUE: Different flow logic with guard statements
+    private func continueExecution() async {
+        // Guard 1: Check if we have marketing data
+        guard !marketingCtx.isEmpty else {
+            loadCachedEndpoint()
             return
         }
         
-        if runtimeConfig.behavior == "Inactive" {
+        // Guard 2: Check operation mode
+        guard operationMode != "Inactive" else {
             phase = .paused
             return
         }
         
-        if needsFirstRunFlow() {
-            await executeFirstRunFlow()
+        // Guard 3: Check for temporary URL
+        if let tempURL = UserDefaults.standard.string(forKey: "temp_url") {
+            activateWithResource(tempURL)
             return
         }
         
-        if let temporary = UserDefaults.standard.string(forKey: "temp_url") {
-            engage(resource: temporary)
+        // Guard 4: Check first launch scenario
+        if shouldExecuteFirstLaunch() {
+            await handleFirstLaunch()
             return
         }
         
-        await obtainResource()
+        // Default: Fetch endpoint
+        await fetchEndpoint()
     }
     
-    private func needsFirstRunFlow() -> Bool {
-        runtimeConfig.isFirstRun && marketingCtx.isNaturalSource
+    // UNIQUE: Different condition check
+    private func shouldExecuteFirstLaunch() -> Bool {
+        return virginLaunch && marketingCtx.isNaturalSource
     }
     
-    private func executeFirstRunFlow() async {
+    // UNIQUE: Different first launch flow
+    private func handleFirstLaunch() async {
+        // Wait 5 seconds
         try? await Task.sleep(nanoseconds: 5_000_000_000)
         
         do {
-            let deviceID = AppsFlyerLib.shared().getAppsFlyerUID()
-            let obtained = try await connector.obtain(marketingID: deviceID)
+            // Get device identifier
+            let identifier = AppsFlyerLib.shared().getAppsFlyerUID()
             
-            var merged = obtained
-            for (key, value) in navigationCtx.content {
-                if merged[key] == nil {
-                    merged[key] = value
+            // Fetch attribution
+            let attribution = try await connector.obtain(marketingID: identifier)
+            
+            // UNIQUE: Merge differently
+            var combined = attribution
+            
+            // Add navigation data if not present
+            for (navKey, navValue) in navigationCtx.content {
+                if combined[navKey] == nil {
+                    combined[navKey] = navValue
                 }
             }
             
-            marketingCtx = MarketingContext(content: merged)
-            repository.store(marketing: merged)
+            // Update context
+            marketingCtx = MarketingContext(content: combined)
+            repository.store(marketing: combined)
             
-            await obtainResource()
+            // Continue to fetch endpoint
+            await fetchEndpoint()
+            
         } catch {
             phase = .paused
         }
     }
     
-    private func obtainResource() async {
+    // UNIQUE: Different endpoint fetching
+    private func fetchEndpoint() async {
         do {
-            let resource = try await connector.acquire(resource: marketingCtx.content)
+            // Acquire resource
+            let endpoint = try await connector.acquire(resource: marketingCtx.content)
             
-            repository.store(resource: resource)
+            // Store results
+            repository.store(resource: endpoint)
             repository.store(behavior: "Active")
             repository.flagFirstRunComplete()
             
-            runtimeConfig.resource = resource
-            runtimeConfig.behavior = "Active"
-            runtimeConfig.isFirstRun = false
+            // Update local state
+            cachedEndpoint = endpoint
+            operationMode = "Active"
+            virginLaunch = false
             
-            engage(resource: resource)
+            // Activate
+            activateWithResource(endpoint)
+            
         } catch {
-            recoverResource()
+            loadCachedEndpoint()
         }
     }
     
-    private func recoverResource() {
-        if let cached = runtimeConfig.resource {
-            engage(resource: cached)
+    // UNIQUE: Different cached loading
+    private func loadCachedEndpoint() {
+        if let cached = cachedEndpoint {
+            activateWithResource(cached)
         } else {
             phase = .paused
         }
     }
     
-    private func engage(resource: String) {
-        guard !locked else { return }
+    // UNIQUE: Different activation logic
+    private func activateWithResource(_ endpoint: String) {
+        // Prevent re-activation
+        guard !engineLocked else { return }
         
-        watchdog?.cancel()
-        activeResource = resource
-        phase = .operational(resource: resource)
-        locked = true
+        // Cancel guard
+        guardTimer?.cancel()
         
-        if runtimeConfig.shouldRequestAlerts {
+        // Set state
+        activeResource = endpoint
+        phase = .operational(resource: endpoint)
+        engineLocked = true
+        
+        // UNIQUE: Check notification prompt differently
+        if canShowNotificationPrompt() {
             presentAlertPrompt = true
+        }
+    }
+    
+    // UNIQUE: Separate prompt check logic
+    private func canShowNotificationPrompt() -> Bool {
+        // Check notification state
+        guard notificationState == .unknown else {
+            return false
+        }
+        
+        // Check last prompt time
+        if let lastPrompt = lastPromptMoment {
+            let elapsed = Date().timeIntervalSince(lastPrompt)
+            let days = elapsed / 86400
+            return days >= 3
+        }
+        
+        return true
+    }
+    
+    // UNIQUE: Separate authorization request
+    private func requestNotificationAuthorization(completion: @escaping (Bool) -> Void) {
+        let center = UNUserNotificationCenter.current()
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        
+        center.requestAuthorization(options: options) { granted, _ in
+            completion(granted)
         }
     }
 }
